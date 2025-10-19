@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b2ndit6vgoyd3"]
+
+[ext_resource type="Script" uid="uid://33dddg13c2o" path="res://board_marker.gd" id="1_ary0h"]
+
+[node name="BoardMarker" type="Node2D" groups=["marker"]]
+script = ExtResource("1_ary0h")

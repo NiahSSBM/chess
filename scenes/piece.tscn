@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://6wjdmlolr08"]
+
+[ext_resource type="Script" uid="uid://ykgcyi6a5s2d" path="res://scripts/piece.gd" id="1_gebih"]
+
+[node name="Piece" type="RichTextLabel" groups=["piece"]]
+clip_contents = false
+offset_right = 64.0
+offset_bottom = 64.0
+size_flags_vertical = 8
+theme_override_colors/default_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/normal_font_size = 80
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 3
+script = ExtResource("1_gebih")
