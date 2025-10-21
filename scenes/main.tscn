@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://bsjnd355cxwqc"]
+[gd_scene load_steps=5 format=3 uid="uid://bsjnd355cxwqc"]
 
 [ext_resource type="Script" uid="uid://bihldgnjfpvac" path="res://scripts/main.gd" id="1_jyhfs"]
 [ext_resource type="Script" uid="uid://cuqbqsfj7aqcm" path="res://scripts/board.gd" id="2_0wfyh"]
+[ext_resource type="Script" uid="uid://chwahkdn44rff" path="res://scenes/game_state.gd" id="4_jyhfs"]
 [ext_resource type="Script" uid="uid://c12pj77qtcxk" path="res://scripts/input_handler.gd" id="5_tbgi4"]
 
 [node name="Node2D" type="Node2D"]
@@ -12,3 +13,6 @@ script = ExtResource("2_0wfyh")
 
 [node name="InputHandler" type="Node" parent="."]
 script = ExtResource("5_tbgi4")
+
+[node name="GameState" type="Node" parent="."]
+script = ExtResource("4_jyhfs")

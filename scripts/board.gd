@@ -43,7 +43,7 @@ func _setup_board():
 			var marker = marker_res.instantiate()
 			@warning_ignore("integer_division")
 			marker.position = Vector2((x * Globals.TILE_SIZE) + (Globals.TILE_SIZE / 2), (y * Globals.TILE_SIZE) + (Globals.TILE_SIZE / 2))
-			marker.board_position = Vector2i(x, y)
+			marker.board_position = Vector2i(x, (Globals.BOARD_SIZE - 1) - y)
 			add_child(marker)
 			
 		tile_color = !tile_color

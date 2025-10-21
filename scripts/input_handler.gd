@@ -24,7 +24,7 @@ func _unhandled_input(_event):
 
 
 func _on_piece_picked_up(p: Piece):
-	print("Picked up ", p)
+	print("Picked up ", Piece.PieceType.keys()[p.type])
 	if piece_held != null:
 		push_error("ERROR: Piece held was not dropped before attempting to pick up a new piece!")
 	piece_held = p
@@ -32,11 +32,18 @@ func _on_piece_picked_up(p: Piece):
 
 
 func _on_piece_dropped(p: Piece):
-	print("Dropped ", p)
+	print("Dropped ", Piece.PieceType.keys()[p.type])
 	var nearest_marker = piece_held.get_nearest_marker()
+	
+	for piece in get_tree().get_nodes_in_group("piece"):
+		if nearest_marker.board_position == piece.board_position:
+			piece.free()
+	
 	piece_held.position = nearest_marker.position - position_offset
 	piece_held.board_position = nearest_marker.board_position
 	piece_held = null
+	
+	Globals.turn_passed.emit()
 
 
 func _move_piece_if_held():

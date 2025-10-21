@@ -13,10 +13,8 @@ var position_offset := Vector2(Globals.TILE_SIZE / 2,Globals.TILE_SIZE / 2)
 func _ready():
 	size = Vector2(Globals.TILE_SIZE, Globals.TILE_SIZE)
 	
-	@warning_ignore("integer_division")
-	var pos_x := (board_position.x * Globals.TILE_SIZE) - (Globals.TILE_SIZE)
-	@warning_ignore("integer_division")
-	var pos_y := (board_position.y * Globals.TILE_SIZE) - (Globals.TILE_SIZE)
+	var pos_x := (board_position.x * Globals.TILE_SIZE)
+	var pos_y := (Globals.TILE_SIZE * (Globals.BOARD_SIZE - 1)) - (board_position.y * Globals.TILE_SIZE)
 	position = Vector2(pos_x, pos_y)
 	
 	if color == PieceColor.BLACK:
