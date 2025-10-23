@@ -7,47 +7,30 @@ var turn: int = 0
 
 func _ready():
 	Globals.connect("turn_passed", _on_turn_passed)
+	Globals.connect("piece_picked_up", _on_piece_picked_up)
+	Globals.connect("piece_dropped", _on_piece_dropped)
 	
 	board_state.resize(Globals.BOARD_SIZE * Globals.BOARD_SIZE)
 
 
-func create_notation(piece: Piece, to: Vector2i) -> String:
-	var notation := String()
-	var from_square: String = _position_to_notation(piece.board_position)
-	var to_square: String = _position_to_notation(to)
+func _on_piece_dropped():
+	var board_markers: Array[Node] = get_tree().get_nodes_in_group("marker")
 	
-	notation = _piece_to_notation(piece) + from_square + to_square
-	
-	return notation
+	for marker in board_markers:
+		marker.visible = false
 
 
-func _piece_to_notation(piece: Piece) -> String:
-	var notation := String()
+func _on_piece_picked_up(p: Piece):
+	var moves: Array[bool] = Game.check_possible_moves(p)
+	var board_markers: Array[Node] = get_tree().get_nodes_in_group("marker")
 	
-	match piece.type:
-		piece.PieceType.KING:
-			notation = "K"
-		piece.PieceType.QUEEN:
-			notation = "Q"
-		piece.PieceType.ROOK:
-			notation = "R"
-		piece.PieceType.BISHOP:
-			notation = "B"
-		piece.PieceType.KNIGHT:
-			notation = "N"
-		piece.PieceType.PAWN:
-			notation = ""
-	
-	return notation
-
-
-func _position_to_notation(pos: Vector2i) -> String:
-	var notation: String = "a"
-	
-	notation = String.chr(notation.unicode_at(0) + pos.x)
-	notation = notation + str(pos.y + 1)
-	
-	return notation
+	# gross
+	for y in Globals.BOARD_SIZE:
+		for x in Globals.BOARD_SIZE:
+			if moves[x + y * Globals.BOARD_SIZE]:
+				for marker in board_markers:
+					if marker.board_position == Vector2i(x, y):
+						marker.visible = true
 
 
 func _on_turn_passed():
