@@ -16,8 +16,10 @@ func submit_move(notation: String) -> bool:
 			if nearest_marker.board_position == p.board_position:
 				if piece != p:
 					p.free()
+					break
 			if nearest_marker.board_position - Vector2i(0, color_mod) == p.board_position and p.is_en_passantable:
 				p.free() # En passant
+				break
 		Globals.turn_passed.emit()
 		return true
 	else:
