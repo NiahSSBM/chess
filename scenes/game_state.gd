@@ -13,6 +13,14 @@ func _ready():
 	board_state.resize(Globals.BOARD_SIZE * Globals.BOARD_SIZE)
 
 
+func get_board() -> Array[int]:
+	return board_state
+
+
+func get_previous_board(turns_ago: int) -> Array[int]:
+	return prev_boards.slice(prev_boards.size() - (board_state.size() * turns_ago), prev_boards.size() - (board_state.size() * (turns_ago - 1)))
+
+
 func _on_piece_dropped():
 	var board_markers: Array[Node] = get_tree().get_nodes_in_group("marker")
 	
@@ -67,7 +75,7 @@ func _print_past_board(turns_old: int):
 	var board: String = ""
 	for y in Globals.BOARD_SIZE:
 		for x in Globals.BOARD_SIZE:
-			line = line + str(prev_boards[x + Globals.BOARD_SIZE * (y + Globals.BOARD_SIZE * (turn - turns_old))]) + " "
+			line = line + str(get_previous_board(turns_old)[x + y * Globals.BOARD_SIZE]) + " "
 		board = line + "\n" + board
 		line = ""
 	print(board)

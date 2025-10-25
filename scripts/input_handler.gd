@@ -30,18 +30,15 @@ func _on_piece_picked_up(p: Piece):
 func _on_piece_dropped():
 	var nearest_marker = piece_held.get_nearest_marker()
 	
-	for piece in get_tree().get_nodes_in_group("piece"):
-		if nearest_marker.board_position == piece.board_position:
-			if piece_held != piece:
-				piece.free()
-	
-	print(Game.create_notation(piece_held, nearest_marker.board_position))
-	piece_held.position = nearest_marker.position - position_offset
-	piece_held.board_position = nearest_marker.board_position
+	if piece_held.board_position != nearest_marker.board_position:
+		if Game.submit_move(Game.create_notation(piece_held, nearest_marker.board_position)):
+			piece_held.position = nearest_marker.position - position_offset
+		else:
+			piece_held.position = piece_held.get_current_marker().position - position_offset
+	else:
+		piece_held.position = piece_held.get_current_marker().position - position_offset
 	piece_held.z_index = 0
 	piece_held = null
-	
-	Globals.turn_passed.emit()
 
 
 func _move_piece_if_held():

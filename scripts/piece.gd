@@ -7,10 +7,15 @@ var type: PieceType
 var color: PieceColor
 var board_position: Vector2i
 var is_held: bool = false
+var has_moved: bool = false
+var is_en_passantable: bool = false
+var clear_en_pessantable_next_turn: bool = false
 @warning_ignore("integer_division")
 var position_offset := Vector2(Globals.TILE_SIZE / 2,Globals.TILE_SIZE / 2)
 
 func _ready():
+	Globals.connect("turn_passed", _on_turn_passed)
+	
 	size = Vector2(Globals.TILE_SIZE, Globals.TILE_SIZE)
 	
 	var pos_x := (board_position.x * Globals.TILE_SIZE)
@@ -44,6 +49,15 @@ func _ready():
 			add_text("♟")
 			add_to_group("pawn")
 
+
+func _on_turn_passed():
+	if is_en_passantable and clear_en_pessantable_next_turn:
+		is_en_passantable = false
+		clear_en_pessantable_next_turn = false
+	
+	if is_en_passantable and not clear_en_pessantable_next_turn:
+		clear_en_pessantable_next_turn = true
+
 func _process(_delta):
 	if Globals.DEBUG_DRAW:
 		queue_redraw()
@@ -66,6 +80,16 @@ func get_nearest_marker() -> Marker:
 		if actual_postion.distance_to(marker.position) < actual_postion.distance_to(closest_marker.position):
 			closest_marker = marker
 	return closest_marker
+
+
+func get_current_marker() -> Marker:
+	var markers := get_tree().get_nodes_in_group("marker")
+	
+	for marker in markers:
+		if marker.board_position == board_position:
+			return marker
+	
+	return null
 
 
 func set_board_position(pos: Vector2i):
