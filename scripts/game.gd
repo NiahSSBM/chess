@@ -47,27 +47,100 @@ func _check_en_passantable(notation: String) -> bool:
 func check_move(notation: String) -> bool:
 	var piece: Piece = _notation_to_piece(notation)
 	var target: Vector2i = _notation_to_target(notation)
-	var color_mod: int = -1 if piece.color else 1
 	
 	if piece.type == Piece.PieceType.PAWN:
-		if target.x == piece.board_position.x:
-			if target.y == piece.board_position.y + color_mod and _get_piece_at_position(target) == null:
-				return true # Move forward 1 space if not obstructed
-			if  target.y == piece.board_position.y + color_mod * 2 and _get_piece_at_position(target) == null and _get_piece_at_position(Vector2i(target.x, target.y - color_mod)) == null and not piece.has_moved:
-				return true # Move forward 2 spaces if hasn't moved already and not obstructed
-		if target.x == piece.board_position.x + 1 or target.x == piece.board_position.x - 1:
-			if target.y == piece.board_position.y + color_mod and _get_piece_at_position(target) != null:
-				if _get_piece_at_position(target).color != piece.color:
-					return true # Take pieces diagonally
-		if target.x == piece.board_position.x + 1 or target.x == piece.board_position.x - 1:
-			var can_en_passant = false
-			if _get_piece_at_position(Vector2i(target.x, target.y - color_mod)) != null:
-				can_en_passant = _get_piece_at_position(Vector2i(target.x, target.y - color_mod)).is_en_passantable
-				can_en_passant = can_en_passant and _get_piece_at_position(Vector2i(target.x, target.y - color_mod)).color != piece.color
-			if target.y == piece.board_position.y + color_mod and can_en_passant:
-				return true # En passant
+		return _can_pawn_move(piece, target)
+	
+	if piece.type == Piece.PieceType.ROOK:
+		return _can_rook_move(piece, target)
+	
+	if piece.type == Piece.PieceType.KNIGHT:
+		return _can_knight_move(piece, target)
+	
+	if piece.type == Piece.PieceType.BISHOP:
+		return _can_bishop_move(piece, target)
+	
+	if piece.type == Piece.PieceType.QUEEN:
+		return _can_queen_move(piece, target)
+	
+	if piece.type == Piece.PieceType.KING:
+		return _can_king_move(piece, target)
 	
 	return false
+
+
+func _can_king_move(king: Piece, target: Vector2i) -> bool:
+	return true
+
+
+func _can_queen_move(queen: Piece, target: Vector2i) -> bool:
+	return true
+
+
+func _can_bishop_move(bishop: Piece, target: Vector2i) -> bool:
+	return true
+
+
+func _can_knight_move(knight: Piece, target: Vector2i) -> bool:
+	return true
+
+
+func _can_rook_move(rook: Piece, target: Vector2i) -> bool:
+	
+	if _has_VH_LOS(rook, target):
+		return true
+	
+	return false
+
+
+func _can_pawn_move(pawn: Piece, target: Vector2i) -> bool:
+	var color_mod: int = -1 if pawn.color else 1
+	
+	if target.x == pawn.board_position.x:
+		if target.y == pawn.board_position.y + color_mod and _get_piece_at_position(target) == null:
+			return true # Move forward 1 space if not obstructed
+		if  target.y == pawn.board_position.y + color_mod * 2 and _get_piece_at_position(target) == null and _get_piece_at_position(Vector2i(target.x, target.y - color_mod)) == null and not pawn.has_moved:
+				return true # Move forward 2 spaces if hasn't moved already and not obstructed
+	if target.x == pawn.board_position.x + 1 or target.x == pawn.board_position.x - 1:
+		if target.y == pawn.board_position.y + color_mod and _get_piece_at_position(target) != null:
+			if _get_piece_at_position(target).color != pawn.color:
+				return true # Take pieces diagonally
+	if target.x == pawn.board_position.x + 1 or target.x == pawn.board_position.x - 1:
+		var can_en_passant = false
+		if _get_piece_at_position(Vector2i(target.x, target.y - color_mod)) != null:
+			can_en_passant = _get_piece_at_position(Vector2i(target.x, target.y - color_mod)).is_en_passantable
+			can_en_passant = can_en_passant and _get_piece_at_position(Vector2i(target.x, target.y - color_mod)).color != pawn.color
+		if target.y == pawn.board_position.y + color_mod and can_en_passant:
+			return true # En passant
+	
+	return false
+
+
+func _has_VH_LOS(piece: Piece, target: Vector2i) -> bool:
+	if not (piece.board_position.x == target.x or piece.board_position.y == target.y):
+		return false
+	
+	if piece.board_position.x > target.x:
+		for i in piece.board_position.x - target.x:
+			if _get_piece_at_position(piece.board_position - Vector2i(i + 1, 0)) != null:
+				return false
+	
+	if piece.board_position.x < target.x:
+		for i in target.x - piece.board_position.x:
+			if _get_piece_at_position(piece.board_position + Vector2i(i + 1, 0)) != null:
+				return false
+	
+	if piece.board_position.y > target.y:
+		for i in piece.board_position.y - target.y:
+			if _get_piece_at_position(piece.board_position - Vector2i(0, i + 1)) != null:
+				return false
+	
+	if piece.board_position.y < target.y:
+		for i in target.y - piece.board_position.y:
+			if _get_piece_at_position(piece.board_position + Vector2i(0, i + 1)) != null:
+				return false
+	
+	return true
 
 
 func _get_piece_at_position(position: Vector2i) -> Piece:
