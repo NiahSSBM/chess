@@ -78,7 +78,7 @@ func _can_queen_move(queen: Piece, target: Vector2i) -> bool:
 
 
 func _can_bishop_move(bishop: Piece, target: Vector2i) -> bool:
-	return true
+	return _has_D_LOS(bishop, target)
 
 
 func _can_knight_move(knight: Piece, target: Vector2i) -> bool:
@@ -86,11 +86,7 @@ func _can_knight_move(knight: Piece, target: Vector2i) -> bool:
 
 
 func _can_rook_move(rook: Piece, target: Vector2i) -> bool:
-	
-	if _has_VH_LOS(rook, target):
-		return true
-	
-	return false
+	return _has_VH_LOS(rook, target)
 
 
 func _can_pawn_move(pawn: Piece, target: Vector2i) -> bool:
@@ -114,6 +110,21 @@ func _can_pawn_move(pawn: Piece, target: Vector2i) -> bool:
 			return true # En passant
 	
 	return false
+
+
+func _has_D_LOS(piece: Piece, target: Vector2i) -> bool:
+	var diag: Vector2i = piece.board_position - target
+	if abs(diag.x) != abs(diag.y):
+		return false
+	
+	for i in range(1, abs(piece.board_position.x - target.x)):
+		if _get_piece_at_position(piece.board_position + Vector2i(i * -clamp(diag.x, -1, 1), i * -clamp(diag.y, -1, 1))) != null:
+			return false
+	
+	if _get_piece_at_position(target) != null and _get_piece_at_position(target).color == piece.color:
+		return false
+		
+	return true
 
 
 func _has_VH_LOS(piece: Piece, target: Vector2i) -> bool:
