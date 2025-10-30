@@ -74,7 +74,7 @@ func _can_king_move(king: Piece, target: Vector2i) -> bool:
 
 
 func _can_queen_move(queen: Piece, target: Vector2i) -> bool:
-	return true
+	return _has_D_LOS(queen, target) or _has_VH_LOS(queen, target)
 
 
 func _can_bishop_move(bishop: Piece, target: Vector2i) -> bool:
