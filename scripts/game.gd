@@ -117,7 +117,7 @@ func _has_D_LOS(piece: Piece, target: Vector2i) -> bool:
 	if abs(diag.x) != abs(diag.y):
 		return false
 	
-	for i in range(1, abs(piece.board_position.x - target.x)):
+	for i in range(1, abs(diag.x)):
 		if _get_piece_at_position(piece.board_position + Vector2i(i * -clamp(diag.x, -1, 1), i * -clamp(diag.y, -1, 1))) != null:
 			return false
 	
@@ -128,28 +128,22 @@ func _has_D_LOS(piece: Piece, target: Vector2i) -> bool:
 
 
 func _has_VH_LOS(piece: Piece, target: Vector2i) -> bool:
-	if not (piece.board_position.x == target.x or piece.board_position.y == target.y):
+	var horiz: Vector2i = piece.board_position - target
+	if horiz.x != 0 and horiz.y != 0:
 		return false
 	
-	if piece.board_position.x > target.x:
-		for i in piece.board_position.x - target.x:
-			if _get_piece_at_position(piece.board_position - Vector2i(i + 1, 0)) != null:
-				return false
+	var steps: int
+	if abs(horiz.x) > abs(horiz.y):
+		steps = horiz.x
+	else:
+		steps = horiz.y
 	
-	if piece.board_position.x < target.x:
-		for i in target.x - piece.board_position.x:
-			if _get_piece_at_position(piece.board_position + Vector2i(i + 1, 0)) != null:
-				return false
+	for i in range(1, abs(steps)):
+		if _get_piece_at_position(piece.board_position + Vector2i(i * -clamp(horiz.x, -1, 1), i * -clamp(horiz.y, -1, 1))) != null:
+			return false
 	
-	if piece.board_position.y > target.y:
-		for i in piece.board_position.y - target.y:
-			if _get_piece_at_position(piece.board_position - Vector2i(0, i + 1)) != null:
-				return false
-	
-	if piece.board_position.y < target.y:
-		for i in target.y - piece.board_position.y:
-			if _get_piece_at_position(piece.board_position + Vector2i(0, i + 1)) != null:
-				return false
+	if _get_piece_at_position(target) != null and _get_piece_at_position(target).color == piece.color:
+		return false
 	
 	return true
 
