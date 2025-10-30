@@ -70,6 +70,16 @@ func check_move(notation: String) -> bool:
 
 
 func _can_king_move(king: Piece, target: Vector2i) -> bool:
+	if _get_piece_at_position(target) != null and _get_piece_at_position(target).color == king.color:
+		return false
+
+	if king.board_position == target:
+		return false
+	
+	var delta: Vector2 = abs(king.board_position - target)
+	if delta.x > 1 or delta.y > 1:
+		return false
+	
 	return true
 
 
