@@ -82,7 +82,16 @@ func _can_bishop_move(bishop: Piece, target: Vector2i) -> bool:
 
 
 func _can_knight_move(knight: Piece, target: Vector2i) -> bool:
-	return true
+	if _get_piece_at_position(target) != null and _get_piece_at_position(target).color == knight.color:
+		return false
+	
+	if target == knight.board_position + Vector2i(1, 2) or target == knight.board_position + Vector2i(2, 1) \
+			or target == knight.board_position + Vector2i(-1, 2) or target == knight.board_position + Vector2i(-2, 1) \
+			or target == knight.board_position + Vector2i(1, -2) or target == knight.board_position + Vector2i(2, -1) \
+			or target == knight.board_position + Vector2i(-1, -2) or target == knight.board_position + Vector2i(-2, -1):
+		return true
+	
+	return false
 
 
 func _can_rook_move(rook: Piece, target: Vector2i) -> bool:
