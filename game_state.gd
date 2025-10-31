@@ -4,6 +4,10 @@ var board_state: Array[int] # 2D array
 var prev_boards: Array[int] # 3D array
 
 var turn: int = 0
+var whos_turn: Player
+var turn_direction: int
+var home_player: Player
+var away_player: Player
 
 func _ready():
 	Globals.connect("turn_passed", _on_turn_passed)
@@ -11,6 +15,22 @@ func _ready():
 	Globals.connect("piece_dropped", _on_piece_dropped)
 	
 	board_state.resize(Globals.BOARD_SIZE * Globals.BOARD_SIZE)
+
+
+func start_game(home: Player, away: Player):
+	home_player = home
+	home.direction = 1
+	away_player = away
+	away.direction = -1
+	if home_player.color == away_player.color:
+		push_error("Error: Both players are the same color!")
+	
+	if home_player.color == Piece.PieceColor.WHITE:
+		whos_turn = away_player # Black player is turn 0, will change to white player for first actual turn
+	else:
+		whos_turn = home_player
+	
+	Globals.turn_passed.emit()
 
 
 func get_board() -> Array[int]:
@@ -43,6 +63,14 @@ func _on_piece_picked_up(p: Piece):
 
 func _on_turn_passed():
 	turn += 1
+	if whos_turn == home_player:
+		whos_turn = away_player
+	else:
+		whos_turn = home_player
+	
+	if Globals.DEBUG_PRINT:
+		print(Piece.PieceColor.keys()[whos_turn.color] + " turn")
+	
 	prev_boards.append_array(board_state)
 	
 	var pieces: Array[Node] = get_tree().get_nodes_in_group("piece")

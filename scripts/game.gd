@@ -4,7 +4,6 @@ extends Node
 func submit_move(notation: String) -> bool:
 	var piece: Piece = _notation_to_piece(notation)
 	var nearest_marker = piece.get_nearest_marker()
-	var color_mod: int = -1 if piece.color else 1
 	
 	if Globals.DEBUG_PRINT:
 		print(notation)
@@ -17,7 +16,7 @@ func submit_move(notation: String) -> bool:
 				if piece != p:
 					p.free()
 					break
-			if nearest_marker.board_position - Vector2i(0, color_mod) == p.board_position and p.is_en_passantable:
+			if nearest_marker.board_position - Vector2i(0, GameState.whos_turn.direction) == p.board_position and p.is_en_passantable:
 				p.free() # En passant
 				break
 		Globals.turn_passed.emit()
@@ -47,6 +46,11 @@ func _check_en_passantable(notation: String) -> bool:
 func check_move(notation: String) -> bool:
 	var piece: Piece = _notation_to_piece(notation)
 	var target: Vector2i = _notation_to_target(notation)
+	
+	GameState.turn_direction = piece.player_owner.direction
+	
+	if GameState.whos_turn.color != piece.color:
+		return false
 	
 	if piece.type == Piece.PieceType.PAWN:
 		return _can_pawn_move(piece, target)
@@ -109,23 +113,21 @@ func _can_rook_move(rook: Piece, target: Vector2i) -> bool:
 
 
 func _can_pawn_move(pawn: Piece, target: Vector2i) -> bool:
-	var color_mod: int = -1 if pawn.color else 1
-	
 	if target.x == pawn.board_position.x:
-		if target.y == pawn.board_position.y + color_mod and _get_piece_at_position(target) == null:
+		if target.y == pawn.board_position.y + GameState.turn_direction and _get_piece_at_position(target) == null:
 			return true # Move forward 1 space if not obstructed
-		if  target.y == pawn.board_position.y + color_mod * 2 and _get_piece_at_position(target) == null and _get_piece_at_position(Vector2i(target.x, target.y - color_mod)) == null and not pawn.has_moved:
+		if  target.y == pawn.board_position.y + GameState.turn_direction * 2 and _get_piece_at_position(target) == null and _get_piece_at_position(Vector2i(target.x, target.y - GameState.turn_direction)) == null and not pawn.has_moved:
 				return true # Move forward 2 spaces if hasn't moved already and not obstructed
 	if target.x == pawn.board_position.x + 1 or target.x == pawn.board_position.x - 1:
-		if target.y == pawn.board_position.y + color_mod and _get_piece_at_position(target) != null:
+		if target.y == pawn.board_position.y + GameState.turn_direction and _get_piece_at_position(target) != null:
 			if _get_piece_at_position(target).color != pawn.color:
 				return true # Take pieces diagonally
 	if target.x == pawn.board_position.x + 1 or target.x == pawn.board_position.x - 1:
 		var can_en_passant = false
-		if _get_piece_at_position(Vector2i(target.x, target.y - color_mod)) != null:
-			can_en_passant = _get_piece_at_position(Vector2i(target.x, target.y - color_mod)).is_en_passantable
-			can_en_passant = can_en_passant and _get_piece_at_position(Vector2i(target.x, target.y - color_mod)).color != pawn.color
-		if target.y == pawn.board_position.y + color_mod and can_en_passant:
+		if _get_piece_at_position(Vector2i(target.x, target.y - GameState.turn_direction)) != null:
+			can_en_passant = _get_piece_at_position(Vector2i(target.x, target.y - GameState.turn_direction)).is_en_passantable
+			can_en_passant = can_en_passant and _get_piece_at_position(Vector2i(target.x, target.y - GameState.turn_direction)).color != pawn.color
+		if target.y == pawn.board_position.y + GameState.turn_direction and can_en_passant:
 			return true # En passant
 	
 	return false

@@ -5,6 +5,7 @@ enum PieceColor {BLACK, WHITE}
 
 var type: PieceType
 var color: PieceColor
+var player_owner: Player
 var board_position: Vector2i
 var is_held: bool = false
 var has_moved: bool = false
