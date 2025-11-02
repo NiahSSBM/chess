@@ -49,8 +49,8 @@ func check_move(notation: String) -> bool:
 	
 	GameState.turn_direction = piece.player_owner.direction
 	
-	if GameState.whos_turn.color != piece.color:
-		return false
+	#if GameState.whos_turn.color != piece.color:
+	#	return false
 	
 	if piece.type == Piece.PieceType.PAWN:
 		return _can_pawn_move(piece, target)
@@ -73,6 +73,52 @@ func check_move(notation: String) -> bool:
 	return false
 
 
+func _force_move(piece: Piece, target: Vector2i) -> Piece:
+	var target_piece = _get_piece_at_position(target)
+	
+	piece.board_position = target
+	
+	return target_piece
+
+
+func _is_position_check(king: Piece, target: Vector2i):
+	var return_val = false
+	var enemy_color: Piece.PieceColor
+	if king.color == Piece.PieceColor.WHITE:
+		enemy_color = Piece.PieceColor.BLACK
+	else:
+		enemy_color = Piece.PieceColor.WHITE
+	
+	var current_pos: Vector2i = king.board_position
+	var occupying_piece: Piece = _force_move(king, target) # Pieces in the way get removed, so we need to track it
+	var piece_groups: Array[StringName]
+	if occupying_piece != null:
+		piece_groups = occupying_piece.get_groups()
+		for group in piece_groups: # Removing piece from groups effectively removes it from the game
+			occupying_piece.remove_from_group(group)
+	
+	var pieces: Array[Node] = get_tree().get_nodes_in_group(Piece.PieceColor.keys()[enemy_color].to_lower())
+	for piece in pieces:
+		if piece.type == Piece.PieceType.KING:
+			# Can't do this recursively. Need to check if we are near the king manually
+			var delta: Vector2 = abs(piece.board_position - king.board_position)
+			if delta.x <= 1 and delta.y <= 1:
+				return_val = true
+				break
+			continue
+		var moves: Array[bool] = check_possible_moves(piece)
+		if moves[target.x + target.y * Globals.BOARD_SIZE]:
+			return_val = true
+			break
+	
+	king.board_position = current_pos
+	if occupying_piece != null:
+		for group in piece_groups: # Put piece back in groups
+			occupying_piece.add_to_group(group)
+	
+	return return_val
+
+
 func _can_king_move(king: Piece, target: Vector2i) -> bool:
 	if _get_piece_at_position(target) != null and _get_piece_at_position(target).color == king.color:
 		return false
@@ -82,6 +128,9 @@ func _can_king_move(king: Piece, target: Vector2i) -> bool:
 	
 	var delta: Vector2 = abs(king.board_position - target)
 	if delta.x > 1 or delta.y > 1:
+		return false
+	
+	if _is_position_check(king, target):
 		return false
 	
 	return true
