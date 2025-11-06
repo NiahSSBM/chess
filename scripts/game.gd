@@ -3,11 +3,12 @@ extends Node
 
 func submit_move(notation: String) -> bool:
 	var piece: Piece = _notation_to_piece(notation)
+	var target: Vector2i = _notation_to_target(notation)
 	var nearest_marker = piece.get_nearest_marker()
 	
 	if Globals.DEBUG_PRINT:
 		print(notation)
-	if check_move(notation):
+	if check_move(notation) and !_is_position_check(piece, target):
 		piece.is_en_passantable = _check_en_passantable(notation)
 		piece.has_moved = true
 		piece.board_position = nearest_marker.board_position
@@ -47,11 +48,6 @@ func check_move(notation: String) -> bool:
 	var piece: Piece = _notation_to_piece(notation)
 	var target: Vector2i = _notation_to_target(notation)
 	
-	GameState.turn_direction = piece.player_owner.direction
-	
-	#if GameState.whos_turn.color != piece.color:
-	#	return false
-	
 	if piece.type == Piece.PieceType.PAWN:
 		return _can_pawn_move(piece, target)
 	
@@ -81,38 +77,42 @@ func _force_move(piece: Piece, target: Vector2i) -> Piece:
 	return target_piece
 
 
-func _is_position_check(king: Piece, target: Vector2i):
+func _is_position_check(piece: Piece, target: Vector2i) -> bool:
 	var return_val = false
+	var friendly_color: Piece.PieceColor = piece.color
 	var enemy_color: Piece.PieceColor
-	if king.color == Piece.PieceColor.WHITE:
+	if friendly_color == Piece.PieceColor.WHITE:
 		enemy_color = Piece.PieceColor.BLACK
 	else:
 		enemy_color = Piece.PieceColor.WHITE
 	
-	var current_pos: Vector2i = king.board_position
-	var occupying_piece: Piece = _force_move(king, target) # Pieces in the way get removed, so we need to track it
+	var king: Piece
+	var pieces: Array[Node] = get_tree().get_nodes_in_group("king")
+	for p in pieces:
+		if p.color == friendly_color:
+			king = p
+			
+	
+	var current_pos: Vector2i = piece.board_position
+	var occupying_piece: Piece = _force_move(piece, target) # Pieces in the way get removed, so we need to track it
 	var piece_groups: Array[StringName]
-	if occupying_piece != null:
+	if occupying_piece != null and occupying_piece.type != Piece.PieceType.KING:
 		piece_groups = occupying_piece.get_groups()
 		for group in piece_groups: # Removing piece from groups effectively removes it from the game
 			occupying_piece.remove_from_group(group)
 	
-	var pieces: Array[Node] = get_tree().get_nodes_in_group(Piece.PieceColor.keys()[enemy_color].to_lower())
-	for piece in pieces:
-		if piece.type == Piece.PieceType.KING:
-			# Can't do this recursively. Need to check if we are near the king manually
-			var delta: Vector2 = abs(piece.board_position - king.board_position)
-			if delta.x <= 1 and delta.y <= 1:
-				return_val = true
-				break
-			continue
-		var moves: Array[bool] = check_possible_moves(piece)
-		if moves[target.x + target.y * Globals.BOARD_SIZE]:
+	pieces = get_tree().get_nodes_in_group(Piece.PieceColor.keys()[enemy_color].to_lower())
+	for p in pieces:
+		var moves: Array[bool] = check_possible_moves(p, false)
+		if piece.type == Piece.PieceType.KING and moves[target.x + target.y * Globals.BOARD_SIZE]:
+			return_val = true
+			break
+		if moves[king.board_position.x + king.board_position.y * Globals.BOARD_SIZE]:
 			return_val = true
 			break
 	
-	king.board_position = current_pos
-	if occupying_piece != null:
+	piece.board_position = current_pos
+	if occupying_piece != null and occupying_piece.type != Piece.PieceType.KING:
 		for group in piece_groups: # Put piece back in groups
 			occupying_piece.add_to_group(group)
 	
@@ -122,15 +122,12 @@ func _is_position_check(king: Piece, target: Vector2i):
 func _can_king_move(king: Piece, target: Vector2i) -> bool:
 	if _get_piece_at_position(target) != null and _get_piece_at_position(target).color == king.color:
 		return false
-
+	
 	if king.board_position == target:
 		return false
 	
 	var delta: Vector2 = abs(king.board_position - target)
 	if delta.x > 1 or delta.y > 1:
-		return false
-	
-	if _is_position_check(king, target):
 		return false
 	
 	return true
@@ -163,20 +160,20 @@ func _can_rook_move(rook: Piece, target: Vector2i) -> bool:
 
 func _can_pawn_move(pawn: Piece, target: Vector2i) -> bool:
 	if target.x == pawn.board_position.x:
-		if target.y == pawn.board_position.y + GameState.turn_direction and _get_piece_at_position(target) == null:
+		if target.y == pawn.board_position.y + pawn.player_owner.direction and _get_piece_at_position(target) == null:
 			return true # Move forward 1 space if not obstructed
-		if  target.y == pawn.board_position.y + GameState.turn_direction * 2 and _get_piece_at_position(target) == null and _get_piece_at_position(Vector2i(target.x, target.y - GameState.turn_direction)) == null and not pawn.has_moved:
+		if  target.y == pawn.board_position.y + pawn.player_owner.direction * 2 and _get_piece_at_position(target) == null and _get_piece_at_position(Vector2i(target.x, target.y - pawn.player_owner.direction)) == null and not pawn.has_moved:
 				return true # Move forward 2 spaces if hasn't moved already and not obstructed
 	if target.x == pawn.board_position.x + 1 or target.x == pawn.board_position.x - 1:
-		if target.y == pawn.board_position.y + GameState.turn_direction and _get_piece_at_position(target) != null:
+		if target.y == pawn.board_position.y + pawn.player_owner.direction and _get_piece_at_position(target) != null:
 			if _get_piece_at_position(target).color != pawn.color:
 				return true # Take pieces diagonally
 	if target.x == pawn.board_position.x + 1 or target.x == pawn.board_position.x - 1:
 		var can_en_passant = false
-		if _get_piece_at_position(Vector2i(target.x, target.y - GameState.turn_direction)) != null:
-			can_en_passant = _get_piece_at_position(Vector2i(target.x, target.y - GameState.turn_direction)).is_en_passantable
-			can_en_passant = can_en_passant and _get_piece_at_position(Vector2i(target.x, target.y - GameState.turn_direction)).color != pawn.color
-		if target.y == pawn.board_position.y + GameState.turn_direction and can_en_passant:
+		if _get_piece_at_position(Vector2i(target.x, target.y - pawn.player_owner.direction)) != null:
+			can_en_passant = _get_piece_at_position(Vector2i(target.x, target.y - pawn.player_owner.direction)).is_en_passantable
+			can_en_passant = can_en_passant and _get_piece_at_position(Vector2i(target.x, target.y - pawn.player_owner.directionn)).color != pawn.color
+		if target.y == pawn.board_position.y + pawn.player_owner.direction and can_en_passant:
 			return true # En passant
 	
 	return false
@@ -232,13 +229,15 @@ func _notation_to_target(notation: String) -> Vector2i:
 	return _notation_to_position(notation.reverse().substr(0,2).reverse())
 
 
-func check_possible_moves(piece: Piece) -> Array[bool]:
+func check_possible_moves(piece: Piece, check_for_check: bool) -> Array[bool]:
 	var valid_moves: Array[bool]
 	valid_moves.resize(Globals.BOARD_SIZE * Globals.BOARD_SIZE)
 	
 	for y in Globals.BOARD_SIZE:
 		for x in Globals.BOARD_SIZE:
 			valid_moves[x + y * Globals.BOARD_SIZE] = check_move(create_notation(piece, Vector2i(x, y)))
+			if check_for_check:
+				valid_moves[x + y * Globals.BOARD_SIZE] = valid_moves[x + y * Globals.BOARD_SIZE] and !_is_position_check(piece, Vector2i(x, y))
 	
 	return valid_moves
 

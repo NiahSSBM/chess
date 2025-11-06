@@ -5,7 +5,6 @@ var prev_boards: Array[int] # 3D array
 
 var turn: int = 0
 var whos_turn: Player
-var turn_direction: int
 var home_player: Player
 var away_player: Player
 
@@ -49,7 +48,7 @@ func _on_piece_dropped():
 
 
 func _on_piece_picked_up(p: Piece):
-	var moves: Array[bool] = Game.check_possible_moves(p)
+	var moves: Array[bool] = Game.check_possible_moves(p, true)
 	var board_markers: Array[Node] = get_tree().get_nodes_in_group("marker")
 	
 	# gross
@@ -67,6 +66,7 @@ func _on_turn_passed():
 		whos_turn = away_player
 	else:
 		whos_turn = home_player
+	
 	
 	if Globals.DEBUG_PRINT:
 		print(Piece.PieceColor.keys()[whos_turn.color] + " turn")

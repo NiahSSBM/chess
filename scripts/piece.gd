@@ -64,12 +64,13 @@ func _process(_delta):
 		queue_redraw()
 
 func _gui_input(event):
-	if event.is_action_pressed("mouse_select") and !is_held:
-		Globals.piece_picked_up.emit(self)
-		is_held = true
-	elif event.is_action_pressed("mouse_select") and is_held:
-		Globals.piece_dropped.emit()
-		is_held = false
+	if GameState.whos_turn.color == color:
+		if event.is_action_pressed("mouse_select") and !is_held:
+			Globals.piece_picked_up.emit(self)
+			is_held = true
+		elif event.is_action_pressed("mouse_select") and is_held:
+			Globals.piece_dropped.emit()
+			is_held = false
 
 
 func get_nearest_marker() -> Marker:
