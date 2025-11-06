@@ -36,9 +36,9 @@ func _check_en_passantable(notation: String) -> bool:
 	if piece.type != Piece.PieceType.PAWN:
 		return false
 	
-	if piece.board_position.y == target.y + 2 and piece.color == Piece.PieceColor.WHITE:
+	if piece.board_position.y == target.y - 2 and piece.color == Piece.PieceColor.WHITE:
 		return true
-	if piece.board_position.y == target.y - 2 and piece.color == Piece.PieceColor.BLACK:
+	if piece.board_position.y == target.y + 2 and piece.color == Piece.PieceColor.BLACK:
 		return true
 	
 	return false
@@ -172,7 +172,7 @@ func _can_pawn_move(pawn: Piece, target: Vector2i) -> bool:
 		var can_en_passant = false
 		if _get_piece_at_position(Vector2i(target.x, target.y - pawn.player_owner.direction)) != null:
 			can_en_passant = _get_piece_at_position(Vector2i(target.x, target.y - pawn.player_owner.direction)).is_en_passantable
-			can_en_passant = can_en_passant and _get_piece_at_position(Vector2i(target.x, target.y - pawn.player_owner.directionn)).color != pawn.color
+			can_en_passant = can_en_passant and _get_piece_at_position(Vector2i(target.x, target.y - pawn.player_owner.direction)).color != pawn.color
 		if target.y == pawn.board_position.y + pawn.player_owner.direction and can_en_passant:
 			return true # En passant
 	
