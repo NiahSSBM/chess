@@ -12,11 +12,11 @@ func submit_move(notation: String, pass_turn: bool) -> bool:
 		if piece.type == Piece.PieceType.KING and target.x - 2 == piece.board_position.x: # Castle right, ensure relevant spaces are not attacked
 			if !_is_position_attacked(piece.color, piece.board_position) and !_is_position_attacked(piece.color, piece.board_position + Vector2i(1, 0)) and !_is_position_attacked(piece.color, piece.board_position + Vector2i(2, 0)):
 				var rook: Piece = _get_piece_at_position(Vector2i(7, piece.board_position.y))
-				submit_move(create_notation(rook, target - Vector2i(1, 0)), false)
+				submit_move(create_notation(rook, target - Vector2i(1, 0)), false) # Move rook oposite king
 		if piece.type == Piece.PieceType.KING and target.x + 2 == piece.board_position.x: # Castle left, ensure relevant spaces are not attacked
 			if !_is_position_attacked(piece.color, piece.board_position) and !_is_position_attacked(piece.color, piece.board_position - Vector2i(1, 0)) and !_is_position_attacked(piece.color, piece.board_position - Vector2i(2, 0)):
 				var rook: Piece = _get_piece_at_position(Vector2i(0, piece.board_position.y))
-				submit_move(create_notation(rook, target + Vector2i(1, 0)), false)
+				submit_move(create_notation(rook, target + Vector2i(1, 0)), false) # Move rook oposite king
 		piece.is_en_passantable = _check_en_passantable(notation)
 		piece.has_moved = true
 		piece.board_position = target_marker.board_position
@@ -25,7 +25,7 @@ func submit_move(notation: String, pass_turn: bool) -> bool:
 				if piece != p:
 					p.free()
 					break
-			if target_marker.board_position - Vector2i(0, GameState.whos_turn.direction) == p.board_position and p.is_en_passantable:
+			if piece.type == Piece.PieceType.PAWN and target_marker.board_position - Vector2i(0, GameState.whos_turn.direction) == p.board_position and p.is_en_passantable:
 				p.free() # En passant
 				break
 		if pass_turn:
