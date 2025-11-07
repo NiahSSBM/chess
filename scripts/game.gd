@@ -1,32 +1,50 @@
 extends Node
 
 
-func submit_move(notation: String) -> bool:
+func submit_move(notation: String, pass_turn: bool) -> bool:
 	var piece: Piece = _notation_to_piece(notation)
 	var target: Vector2i = _notation_to_target(notation)
-	var nearest_marker = piece.get_nearest_marker()
+	var target_marker = _get_marker_at_position(target)
 	
 	if Globals.DEBUG_PRINT:
 		print(notation)
 	if check_move(notation) and !_is_position_check(piece, target):
+		if piece.type == Piece.PieceType.KING and target.x - 2 == piece.board_position.x: # Castle right, ensure relevant spaces are not attacked
+			if !_is_position_attacked(piece.color, piece.board_position) and !_is_position_attacked(piece.color, piece.board_position + Vector2i(1, 0)) and !_is_position_attacked(piece.color, piece.board_position + Vector2i(2, 0)):
+				var rook: Piece = _get_piece_at_position(Vector2i(7, piece.board_position.y))
+				submit_move(create_notation(rook, target - Vector2i(1, 0)), false)
+		if piece.type == Piece.PieceType.KING and target.x + 2 == piece.board_position.x: # Castle left, ensure relevant spaces are not attacked
+			if !_is_position_attacked(piece.color, piece.board_position) and !_is_position_attacked(piece.color, piece.board_position - Vector2i(1, 0)) and !_is_position_attacked(piece.color, piece.board_position - Vector2i(2, 0)):
+				var rook: Piece = _get_piece_at_position(Vector2i(0, piece.board_position.y))
+				submit_move(create_notation(rook, target + Vector2i(1, 0)), false)
 		piece.is_en_passantable = _check_en_passantable(notation)
 		piece.has_moved = true
-		piece.board_position = nearest_marker.board_position
+		piece.board_position = target_marker.board_position
 		for p in get_tree().get_nodes_in_group("piece"):
-			if nearest_marker.board_position == p.board_position:
+			if target_marker.board_position == p.board_position:
 				if piece != p:
 					p.free()
 					break
-			if nearest_marker.board_position - Vector2i(0, GameState.whos_turn.direction) == p.board_position and p.is_en_passantable:
+			if target_marker.board_position - Vector2i(0, GameState.whos_turn.direction) == p.board_position and p.is_en_passantable:
 				p.free() # En passant
 				break
-		Globals.turn_passed.emit()
+		if pass_turn:
+			Globals.turn_passed.emit()
+		piece.position = target_marker.position - Globals.position_offset
 		return true
 	else:
 		if Globals.DEBUG_PRINT:
 			print("Invalid move!")
 	
 	return false
+
+
+func _get_marker_at_position(position: Vector2i) -> Marker:
+	var markers: Array[Node] = get_tree().get_nodes_in_group("marker")
+	for marker in markers:
+		if marker.board_position == position:
+			return marker
+	return null
 
 
 func _check_en_passantable(notation: String) -> bool:
@@ -91,7 +109,6 @@ func _is_position_check(piece: Piece, target: Vector2i) -> bool:
 	for p in pieces:
 		if p.color == friendly_color:
 			king = p
-			
 	
 	var current_pos: Vector2i = piece.board_position
 	var occupying_piece: Piece = _force_move(piece, target) # Pieces in the way get removed, so we need to track it
@@ -119,16 +136,45 @@ func _is_position_check(piece: Piece, target: Vector2i) -> bool:
 	return return_val
 
 
+func _is_position_attacked(friendly_color: Piece.PieceColor, target: Vector2i) -> bool:
+	var enemy_color: Piece.PieceColor
+	if friendly_color == Piece.PieceColor.WHITE:
+		enemy_color = Piece.PieceColor.BLACK
+	else:
+		enemy_color = Piece.PieceColor.WHITE
+	
+	var pieces: Array[Node] = get_tree().get_nodes_in_group(Piece.PieceColor.keys()[enemy_color].to_lower())
+	for p in pieces:
+		var moves: Array[bool] = check_possible_moves(p, false)
+		if moves[target.x + target.y * Globals.BOARD_SIZE]:
+			return true
+	
+	return false
+
+
 func _can_king_move(king: Piece, target: Vector2i) -> bool:
 	if _get_piece_at_position(target) != null and _get_piece_at_position(target).color == king.color:
-		return false
+		return false # Don't take own pieces
 	
 	if king.board_position == target:
-		return false
+		return false # Don't move to same position
+	
+	if !king.has_moved:
+		var rooks: Array[Node] = get_tree().get_nodes_in_group("rook")
+		for rook in rooks:
+			if rook.color == king.color and !rook.has_moved:
+				if rook.board_position.x > king.board_position.x and \
+						target - Vector2i(2, 0) == king.board_position \
+						and _get_piece_at_position(target - Vector2i(1, 0)) == null:
+					return true # Castle right
+				if rook.board_position.x < king.board_position.x and \
+						target + Vector2i(2, 0) == king.board_position \
+						and _get_piece_at_position(target + Vector2i(1, 0)) == null:
+					return true # Castle left
 	
 	var delta: Vector2 = abs(king.board_position - target)
 	if delta.x > 1 or delta.y > 1:
-		return false
+		return false # Don't move to positions outside a 1 tile radius
 	
 	return true
 
@@ -229,15 +275,23 @@ func _notation_to_target(notation: String) -> Vector2i:
 	return _notation_to_position(notation.reverse().substr(0,2).reverse())
 
 
-func check_possible_moves(piece: Piece, check_for_check: bool) -> Array[bool]:
+func check_possible_moves(piece: Piece, castle_or_check: bool) -> Array[bool]:
 	var valid_moves: Array[bool]
 	valid_moves.resize(Globals.BOARD_SIZE * Globals.BOARD_SIZE)
 	
 	for y in Globals.BOARD_SIZE:
 		for x in Globals.BOARD_SIZE:
 			valid_moves[x + y * Globals.BOARD_SIZE] = check_move(create_notation(piece, Vector2i(x, y)))
-			if check_for_check:
+			if castle_or_check:
 				valid_moves[x + y * Globals.BOARD_SIZE] = valid_moves[x + y * Globals.BOARD_SIZE] and !_is_position_check(piece, Vector2i(x, y))
+				if piece.type == Piece.PieceType.KING and x - 2 == piece.board_position.x: # Castle right, ensure relevant spaces are not attacked
+					valid_moves[x + y * Globals.BOARD_SIZE] = valid_moves[x + y * Globals.BOARD_SIZE] and !_is_position_attacked(piece.color, piece.board_position)
+					valid_moves[x + y * Globals.BOARD_SIZE] = valid_moves[x + y * Globals.BOARD_SIZE] and !_is_position_attacked(piece.color, piece.board_position + Vector2i(1, 0))
+					valid_moves[x + y * Globals.BOARD_SIZE] = valid_moves[x + y * Globals.BOARD_SIZE] and !_is_position_attacked(piece.color, piece.board_position + Vector2i(2, 0))
+				if piece.type == Piece.PieceType.KING and x + 2 == piece.board_position.x: # Castle left, ensure relevant spaces are not attacked
+					valid_moves[x + y * Globals.BOARD_SIZE] = valid_moves[x + y * Globals.BOARD_SIZE] and !_is_position_attacked(piece.color, piece.board_position)
+					valid_moves[x + y * Globals.BOARD_SIZE] = valid_moves[x + y * Globals.BOARD_SIZE] and !_is_position_attacked(piece.color, piece.board_position - Vector2i(1, 0))
+					valid_moves[x + y * Globals.BOARD_SIZE] = valid_moves[x + y * Globals.BOARD_SIZE] and !_is_position_attacked(piece.color, piece.board_position - Vector2i(2, 0))
 	
 	return valid_moves
 

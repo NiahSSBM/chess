@@ -4,7 +4,7 @@ var piece_held: Piece
 var mouse_position: Vector2
 var mouse_position_woffset: Vector2
 @warning_ignore("integer_division")
-var position_offset := Vector2(Globals.TILE_SIZE / 2,Globals.TILE_SIZE / 2)
+
 
 func _ready():
 	Globals.connect("piece_picked_up", _on_piece_picked_up)
@@ -31,12 +31,10 @@ func _on_piece_dropped():
 	var nearest_marker = piece_held.get_nearest_marker()
 	
 	if piece_held.board_position != nearest_marker.board_position:
-		if Game.submit_move(Game.create_notation(piece_held, nearest_marker.board_position)):
-			piece_held.position = nearest_marker.position - position_offset
-		else:
-			piece_held.position = piece_held.get_current_marker().position - position_offset
+		if !Game.submit_move(Game.create_notation(piece_held, nearest_marker.board_position), true):
+			piece_held.position = piece_held.get_current_marker().position - Globals.position_offset
 	else:
-		piece_held.position = piece_held.get_current_marker().position - position_offset
+		piece_held.position = piece_held.get_current_marker().position - Globals.position_offset
 	piece_held.z_index = 0
 	piece_held = null
 

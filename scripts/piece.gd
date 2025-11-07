@@ -11,6 +11,7 @@ var is_held: bool = false
 var has_moved: bool = false
 var is_en_passantable: bool = false
 var clear_en_pessantable_next_turn: bool = false
+var castled: bool = false
 @warning_ignore("integer_division")
 var position_offset := Vector2(Globals.TILE_SIZE / 2,Globals.TILE_SIZE / 2)
 
