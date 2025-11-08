@@ -97,6 +97,15 @@ func _force_move(piece: Piece, target: Vector2i) -> Piece:
 
 
 func _check_game_over() -> bool:
+	var current_board: Array[int] = GameState.get_board()
+	var times_board_seen: int = 1
+	for i in GameState.turn:
+		if current_board == GameState.get_previous_board(i + 1):
+			times_board_seen += 1
+			if times_board_seen == 3:
+				print("Stalemate by repetition!")
+				return true
+	
 	var pieces: Array[Node] = get_tree().get_nodes_in_group(Piece.PieceColor.keys()[GameState.whos_turn.color].to_lower())
 	for piece in pieces:
 		var moves: Array[bool] = check_possible_moves(piece, true)
@@ -114,6 +123,7 @@ func _check_game_over() -> bool:
 		print("Checkmate!")
 	else:
 		print("Stalemate!")
+	
 	return true
 
 
