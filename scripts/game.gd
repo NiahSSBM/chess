@@ -31,6 +31,7 @@ func submit_move(notation: String, pass_turn: bool) -> bool:
 		if pass_turn:
 			Globals.turn_passed.emit()
 		piece.position = target_marker.position - Globals.position_offset
+		_check_game_over()
 		return true
 	else:
 		if Globals.DEBUG_PRINT:
@@ -93,6 +94,27 @@ func _force_move(piece: Piece, target: Vector2i) -> Piece:
 	piece.board_position = target
 	
 	return target_piece
+
+
+func _check_game_over() -> bool:
+	var pieces: Array[Node] = get_tree().get_nodes_in_group(Piece.PieceColor.keys()[GameState.whos_turn.color].to_lower())
+	for piece in pieces:
+		var moves: Array[bool] = check_possible_moves(piece, true)
+		for move in moves:
+			if move:
+				return false
+	
+	var kings: Array[Node] = get_tree().get_nodes_in_group("king")
+	var king: Piece
+	for k in kings:
+		if k.color == GameState.whos_turn.color:
+			king = k
+	
+	if _is_position_attacked(GameState.whos_turn.color, king.board_position):
+		print("Checkmate!")
+	else:
+		print("Stalemate!")
+	return true
 
 
 func _is_position_check(piece: Piece, target: Vector2i) -> bool:
