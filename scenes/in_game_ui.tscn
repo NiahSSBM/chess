@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://8wgp3ocxf2ay"]
+[gd_scene load_steps=5 format=3 uid="uid://8wgp3ocxf2ay"]
 
 [ext_resource type="Script" uid="uid://brnnuhd8duiuv" path="res://scripts/in_game_ui.gd" id="1_kplmn"]
+[ext_resource type="Script" uid="uid://ddriq5ep8jux5" path="res://scripts/game_text_edit.gd" id="2_fnge6"]
+[ext_resource type="Script" uid="uid://d1dq387va10lu" path="res://scripts/chat_text_edit.gd" id="3_a45jx"]
+[ext_resource type="Script" uid="uid://de0idgj4vhnna" path="res://scripts/message_box_text_edit.gd" id="4_fqvwy"]
 
 [node name="InGameUi" type="Control"]
 layout_mode = 3
@@ -29,6 +32,9 @@ virtual_keyboard_enabled = false
 virtual_keyboard_show_on_focus = false
 middle_mouse_paste_enabled = false
 empty_selection_clipboard_enabled = false
+tab_input_mode = false
+scroll_smooth = true
+script = ExtResource("2_fnge6")
 
 [node name="ChatTextEdit" type="TextEdit" parent="VBoxContainer"]
 layout_mode = 2
@@ -43,6 +49,8 @@ virtual_keyboard_enabled = false
 virtual_keyboard_show_on_focus = false
 middle_mouse_paste_enabled = false
 empty_selection_clipboard_enabled = false
+tab_input_mode = false
+script = ExtResource("3_a45jx")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -53,8 +61,9 @@ size_flags_stretch_ratio = 0.12
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+script = ExtResource("4_fqvwy")
 
-[node name="Button" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="MessageBoxButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.2
@@ -93,3 +102,5 @@ custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 text = ">"
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/MessageBoxButton" to="VBoxContainer/HBoxContainer/MessageBoxTextEdit" method="_on_message_box_button_pressed"]
