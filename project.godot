@@ -39,6 +39,7 @@ queen=""
 rook=""
 bishop=""
 marker=""
+fake=""
 
 [gui]
 

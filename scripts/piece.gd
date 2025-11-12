@@ -3,17 +3,18 @@ class_name Piece extends RichTextLabel
 enum PieceType {EMPTY, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN}
 enum PieceColor {BLACK, WHITE}
 
-var type: PieceType
-var color: PieceColor
-var player_owner: Player
-var board_position: Vector2i
-var is_held: bool = false
-var has_moved: bool = false
-var is_en_passantable: bool = false
-var clear_en_pessantable_next_turn: bool = false
-var castled: bool = false
+@export var type: PieceType
+@export var color: PieceColor
+@export var player_owner: Player
+@export var board_position: Vector2i
+@export var is_held: bool = false
+@export var has_moved: bool = false
+@export var is_en_passantable: bool = false
+@export var clear_en_pessantable_next_turn: bool = false
+@export var castled: bool = false
 @warning_ignore("integer_division")
-var position_offset := Vector2(Globals.TILE_SIZE / 2,Globals.TILE_SIZE / 2)
+@export var position_offset := Vector2(Globals.TILE_SIZE / 2,Globals.TILE_SIZE / 2)
+
 
 func _ready():
 	Globals.connect("turn_passed", _on_turn_passed)
@@ -51,7 +52,6 @@ func _ready():
 			add_text("♟")
 			add_to_group("pawn")
 
-
 func _on_turn_passed():
 	if is_en_passantable and clear_en_pessantable_next_turn:
 		is_en_passantable = false
@@ -67,7 +67,7 @@ func _process(_delta):
 
 
 func _gui_input(event):
-	if GameState.whos_turn.color == color:
+	if GameState.whos_turn.color == color and GameState.viewing_turn == GameState.turn:
 		if event.is_action_pressed("mouse_select") and !is_held:
 			Globals.piece_picked_up.emit(self)
 			is_held = true

@@ -52,18 +52,18 @@ empty_selection_clipboard_enabled = false
 tab_input_mode = false
 script = ExtResource("3_a45jx")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="MessageHBox" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.12
 
-[node name="MessageBoxTextEdit" type="TextEdit" parent="VBoxContainer/HBoxContainer"]
+[node name="MessageBoxTextEdit" type="TextEdit" parent="VBoxContainer/MessageHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("4_fqvwy")
 
-[node name="MessageBoxButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="MessageBoxButton" type="Button" parent="VBoxContainer/MessageHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.2
@@ -88,19 +88,21 @@ size_flags_horizontal = 3
 text = "Offer Draw"
 autowrap_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/BottomUIHBox"]
+[node name="TurnHBox" type="HBoxContainer" parent="VBoxContainer/BottomUIHBox"]
 layout_mode = 2
 
-[node name="BackButton" type="Button" parent="VBoxContainer/BottomUIHBox/HBoxContainer"]
+[node name="BackButton" type="Button" parent="VBoxContainer/BottomUIHBox/TurnHBox"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "<"
 
-[node name="ForwardButton" type="Button" parent="VBoxContainer/BottomUIHBox/HBoxContainer"]
+[node name="ForwardButton" type="Button" parent="VBoxContainer/BottomUIHBox/TurnHBox"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 text = ">"
 
-[connection signal="pressed" from="VBoxContainer/HBoxContainer/MessageBoxButton" to="VBoxContainer/HBoxContainer/MessageBoxTextEdit" method="_on_message_box_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/MessageHBox/MessageBoxButton" to="VBoxContainer/MessageHBox/MessageBoxTextEdit" method="_on_message_box_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/BottomUIHBox/TurnHBox/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/BottomUIHBox/TurnHBox/ForwardButton" to="." method="_on_forward_button_pressed"]

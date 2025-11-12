@@ -6,6 +6,7 @@ func submit_move(notation: String, pass_turn: bool) -> bool:
 	var target: Vector2i = _notation_to_target(notation)
 	var target_marker = _get_marker_at_position(target)
 	
+	
 	if check_move(notation) and !_is_position_check(piece, target):
 		if piece.type == Piece.PieceType.KING and target.x - 2 == piece.board_position.x: # Castle right, ensure relevant spaces are not attacked
 			if !_is_position_attacked(piece.color, piece.board_position) and !_is_position_attacked(piece.color, piece.board_position + Vector2i(1, 0)) and !_is_position_attacked(piece.color, piece.board_position + Vector2i(2, 0)):
@@ -104,7 +105,7 @@ func _force_move(piece: Piece, target: Vector2i) -> Piece:
 
 
 func _check_game_over() -> int:
-	var current_board: Array[int] = GameState.get_board()
+	var current_board: Array[Piece] = GameState.get_board()
 	var times_board_seen: int = 1
 	for i in GameState.turn:
 		if current_board == GameState.get_previous_board(i + 1):
