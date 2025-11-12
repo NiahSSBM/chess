@@ -6,8 +6,7 @@ func submit_move(notation: String, pass_turn: bool) -> bool:
 	var target: Vector2i = _notation_to_target(notation)
 	var target_marker = _get_marker_at_position(target)
 	
-	if Globals.DEBUG_PRINT:
-		print(notation)
+	print(notation)
 	if check_move(notation) and !_is_position_check(piece, target):
 		if piece.type == Piece.PieceType.KING and target.x - 2 == piece.board_position.x: # Castle right, ensure relevant spaces are not attacked
 			if !_is_position_attacked(piece.color, piece.board_position) and !_is_position_attacked(piece.color, piece.board_position + Vector2i(1, 0)) and !_is_position_attacked(piece.color, piece.board_position + Vector2i(2, 0)):
@@ -31,7 +30,14 @@ func submit_move(notation: String, pass_turn: bool) -> bool:
 		if pass_turn:
 			Globals.turn_passed.emit()
 		piece.position = target_marker.position - Globals.position_offset
-		_check_game_over()
+		var reason: int = _check_game_over()
+		match reason:
+			1:
+				print("Stalemate by repetition!")
+			2:
+				print("Checkmate!")
+			3:
+				print("Stalemate!")
 		return true
 	else:
 		if Globals.DEBUG_PRINT:
@@ -96,22 +102,21 @@ func _force_move(piece: Piece, target: Vector2i) -> Piece:
 	return target_piece
 
 
-func _check_game_over() -> bool:
+func _check_game_over() -> int:
 	var current_board: Array[int] = GameState.get_board()
 	var times_board_seen: int = 1
 	for i in GameState.turn:
 		if current_board == GameState.get_previous_board(i + 1):
 			times_board_seen += 1
 			if times_board_seen == 3:
-				print("Stalemate by repetition!")
-				return true
+				return 1
 	
 	var pieces: Array[Node] = get_tree().get_nodes_in_group(Piece.PieceColor.keys()[GameState.whos_turn.color].to_lower())
 	for piece in pieces:
 		var moves: Array[bool] = check_possible_moves(piece, true)
 		for move in moves:
 			if move:
-				return false
+				return 0
 	
 	var kings: Array[Node] = get_tree().get_nodes_in_group("king")
 	var king: Piece
@@ -120,11 +125,9 @@ func _check_game_over() -> bool:
 			king = k
 	
 	if _is_position_attacked(GameState.whos_turn.color, king.board_position):
-		print("Checkmate!")
+		return 2
 	else:
-		print("Stalemate!")
-	
-	return true
+		return 3
 
 
 func _is_position_check(piece: Piece, target: Vector2i) -> bool:

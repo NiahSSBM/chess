@@ -1,0 +1,95 @@
+[gd_scene load_steps=2 format=3 uid="uid://8wgp3ocxf2ay"]
+
+[ext_resource type="Script" uid="uid://brnnuhd8duiuv" path="res://scripts/in_game_ui.gd" id="1_kplmn"]
+
+[node name="InGameUi" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 256.0
+offset_bottom = 512.0
+script = ExtResource("1_kplmn")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GameTextEdit" type="TextEdit" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Game placeholder"
+editable = false
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+virtual_keyboard_enabled = false
+virtual_keyboard_show_on_focus = false
+middle_mouse_paste_enabled = false
+empty_selection_clipboard_enabled = false
+
+[node name="ChatTextEdit" type="TextEdit" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.5
+text = "Chat placeholder"
+editable = false
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+virtual_keyboard_enabled = false
+virtual_keyboard_show_on_focus = false
+middle_mouse_paste_enabled = false
+empty_selection_clipboard_enabled = false
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.12
+
+[node name="MessageBoxTextEdit" type="TextEdit" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.2
+text = "Send"
+
+[node name="BottomUIHBox" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="DrawResignHBox" type="HBoxContainer" parent="VBoxContainer/BottomUIHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ResignButton" type="Button" parent="VBoxContainer/BottomUIHBox/DrawResignHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Resign"
+
+[node name="OfferDrawButton" type="Button" parent="VBoxContainer/BottomUIHBox/DrawResignHBox"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Offer Draw"
+autowrap_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/BottomUIHBox"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="VBoxContainer/BottomUIHBox/HBoxContainer"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "<"
+
+[node name="ForwardButton" type="Button" parent="VBoxContainer/BottomUIHBox/HBoxContainer"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+text = ">"

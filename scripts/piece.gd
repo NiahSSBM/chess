@@ -60,9 +60,11 @@ func _on_turn_passed():
 	if is_en_passantable and not clear_en_pessantable_next_turn:
 		clear_en_pessantable_next_turn = true
 
+
 func _process(_delta):
 	if Globals.DEBUG_DRAW:
 		queue_redraw()
+
 
 func _gui_input(event):
 	if GameState.whos_turn.color == color:

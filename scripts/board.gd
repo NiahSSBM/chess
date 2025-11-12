@@ -5,6 +5,8 @@ var marker_res: Resource = preload("res://scenes/board_marker.tscn")
 func _ready():
 	_create_tile_set()
 	_setup_board()
+	
+	z_index = -2
 
 
 func _create_tile_set():

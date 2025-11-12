@@ -3,7 +3,6 @@ extends Node
 var piece_held: Piece
 var mouse_position: Vector2
 var mouse_position_woffset: Vector2
-@warning_ignore("integer_division")
 
 
 func _ready():
