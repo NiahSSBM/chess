@@ -32,6 +32,7 @@ func submit_move(notation: String, pass_turn: bool) -> bool:
 		piece.position = target_marker.position - Globals.position_offset
 		print(notation)
 		Globals.push_game_message.emit(notation)
+		Globals.view_turn_changed.emit()
 		var reason: int = _check_game_over()
 		match reason:
 			1:

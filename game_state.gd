@@ -17,6 +17,7 @@ func _ready():
 	Globals.connect("piece_dropped", _on_piece_dropped)
 	Globals.connect("view_turn_back", _on_view_turn_back)
 	Globals.connect("view_turn_forward", _on_view_turn_forward)
+	Globals.connect("view_turn_changed", _on_view_turn_changed)
 	
 	board_state.resize(Globals.BOARD_SIZE * Globals.BOARD_SIZE)
 
@@ -30,7 +31,7 @@ func start_game(home: Player, away: Player):
 		push_error("Error: Both players are the same color!")
 	
 	if home_player.color == Piece.PieceColor.WHITE:
-		whos_turn = away_player # Black player is turn 0, will change to white player for first actual turn
+		whos_turn = away_player
 	else:
 		whos_turn = home_player
 	
@@ -47,7 +48,7 @@ func _on_view_turn_back():
 			piece.visible = false
 	
 	GameState.viewing_turn -= 1
-	_view_turn_changed()
+	Globals.view_turn_changed.emit()
 
 
 func _on_view_turn_forward():
@@ -61,10 +62,10 @@ func _on_view_turn_forward():
 		for piece in pieces:
 			piece.visible = true
 	
-	_view_turn_changed()
+	Globals.view_turn_changed.emit()
 
 
-func _view_turn_changed():
+func _on_view_turn_changed():
 	var fake_pieces: Array[Node] = get_tree().get_nodes_in_group("fake")
 	for piece in fake_pieces:
 		remove_child(piece)
