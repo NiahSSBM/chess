@@ -25,6 +25,16 @@ func _ready():
 	var pos_y := (Globals.TILE_SIZE * (Globals.BOARD_SIZE - 1)) - (board_position.y * Globals.TILE_SIZE)
 	position = Vector2(pos_x, pos_y)
 	
+	update_piece()
+
+
+func update_piece():
+	for group in get_groups():
+		if !group.contains("_root_canvas") and !group.contains("piece"):
+			remove_from_group(group)
+	
+	text = ""
+	
 	if color == PieceColor.BLACK:
 		push_color(Color.BLACK)
 		add_to_group("black")
@@ -51,6 +61,7 @@ func _ready():
 		PieceType.PAWN:
 			add_text("♟")
 			add_to_group("pawn")
+
 
 func _on_turn_passed():
 	if is_en_passantable and clear_en_pessantable_next_turn:

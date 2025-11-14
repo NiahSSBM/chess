@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3 uid="uid://du1wcbnmn28as"]
+
+[ext_resource type="Script" uid="uid://krv0iv2uuang" path="res://scripts/promotion_selector.gd" id="1_2nvir"]
+
+[node name="PromotionSelector" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2nvir")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 187.0
+offset_bottom = 39.0
+
+[node name="QueenButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "♕"
+
+[node name="RookButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "♖"
+
+[node name="BishopButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "♗"
+
+[node name="KnightButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "♘"
+
+[node name="CancelButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "X"
+
+[connection signal="pressed" from="HBoxContainer/QueenButton" to="." method="_on_queen_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/RookButton" to="." method="_on_rook_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/BishopButton" to="." method="_on_bishop_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/KnightButton" to="." method="_on_knight_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
