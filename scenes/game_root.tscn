@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3 uid="uid://f61h7rrh5h5g"]
+
+[ext_resource type="Script" uid="uid://cuqbqsfj7aqcm" path="res://scripts/board.gd" id="1_uebra"]
+[ext_resource type="Script" uid="uid://c12pj77qtcxk" path="res://scripts/input_handler.gd" id="2_jb3nc"]
+[ext_resource type="Script" uid="uid://cy021fc3esj7q" path="res://scripts/ui_root_control.gd" id="3_iusj4"]
+[ext_resource type="Script" uid="uid://dxn5f68u1lpx3" path="res://scenes/rpc_functions_client.gd" id="4_jb3nc"]
+[ext_resource type="Script" uid="uid://c04kqnfxg4e4t" path="res://scripts/client_network.gd" id="5_iusj4"]
+
+[node name="Root" type="Node"]
+
+[node name="Board" type="TileMapLayer" parent="."]
+script = ExtResource("1_uebra")
+
+[node name="InputHandler" type="Node" parent="."]
+script = ExtResource("2_jb3nc")
+
+[node name="UIRootControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("3_iusj4")
+
+[node name="RPCFunctions" type="Node" parent="."]
+script = ExtResource("4_jb3nc")
+
+[node name="ClientNetwork" type="Node" parent="."]
+script = ExtResource("5_iusj4")

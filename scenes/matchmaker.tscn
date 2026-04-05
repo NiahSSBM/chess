@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://2b6xrxnhrirx"]
+
+[ext_resource type="Script" uid="uid://cikbd0g0pjs66" path="res://scripts/matchmaker.gd" id="1_3ckp2"]
+[ext_resource type="Script" uid="uid://dvd7udvnc7712" path="res://scripts/rpc_functions_server.gd" id="2_tlf3t"]
+
+[node name="Root" type="Node"]
+
+[node name="RPCFunctions" type="Node" parent="."]
+script = ExtResource("2_tlf3t")
+
+[node name="Matchmaker" type="Node" parent="."]
+script = ExtResource("1_3ckp2")

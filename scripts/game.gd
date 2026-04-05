@@ -36,10 +36,13 @@ func submit_move(notation: String, pass_turn: bool) -> bool:
 		var reason: int = _check_game_over()
 		match reason:
 			1:
+				Globals.push_game_message.emit("Stalemate by repetition!")
 				print("Stalemate by repetition!")
 			2:
+				Globals.push_game_message.emit("Checkmate!")
 				print("Checkmate!")
 			3:
+				Globals.push_game_message.emit("Stalemate!")
 				print("Stalemate!")
 		return true
 	else:

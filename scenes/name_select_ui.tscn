@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://clfubqusieaxt"]
+
+[ext_resource type="Script" uid="uid://c6memiikhvbq4" path="res://scripts/name_select_ui.gd" id="1_m3x6e"]
+
+[node name="name_select_ui" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -256.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_m3x6e")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = -1.0
+offset_top = 228.0
+offset_right = 255.0
+offset_bottom = 298.0
+
+[node name="UsernameTextEdit" type="TextEdit" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "Enter Username"
+
+[node name="MatchmakeButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Matchmake"
+
+[connection signal="pressed" from="VBoxContainer/MatchmakeButton" to="." method="_on_matchmake_button_pressed"]
